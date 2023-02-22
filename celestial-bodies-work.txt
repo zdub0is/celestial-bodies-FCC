@@ -1,0 +1,247 @@
+psql --username=freecodecamp --dbname=postgres
+
+CREATE TABLE galaxy(
+  galaxy_id SERIAL PRIMARY KEY,
+  name VARCHAR NOT NULL,
+  diameter_ly INT,
+  constellation VARCHAR,
+  name_origin TEXT,
+  naked_eye BOOLEAN);
+
+CREATE TABLE stage(
+  stage_id SERIAL PRIMARY KEY,
+  name VARCHAR NOT NULL,
+  stage_info TEXT NOT NULL);
+
+CREATE TABLE star(
+  star_id SERIAL PRIMARY KEY,
+  name VARCHAR NOT NULL,
+  galaxy_id INT NOT NULL,
+  stage_id INT NOT NULL,
+  is_active BOOLEAN NOT NULL,
+  CONSTRAINT fk_galaxy_star
+    FOREIGN KEY(galaxy_id)
+    REFERENCES galaxy(galaxy_id),
+  CONSTRAINT fk_stage_star
+    FOREIGN KEY(stage_id)
+    REFERENCES stage(stage_id));
+
+CREATE TABLE planet(
+  planet_id SERIAL PRIMARY KEY,
+  name VARCHAR NOT NULL,
+  age_millions_of_years INT NOT NULL,
+  diameter_km INT,
+  star_id INT,
+  CONSTRAINT fk_star_planet
+    FOREIGN KEY(star_id)
+    REFERENCES star(star_id));
+
+CREATE TABLE moon(
+  moon_id SERIAL PRIMARY KEY,
+  name VARCHAR NOT NULL,
+  planet_id INT NOT NULL,
+  diameter_km INT NOT NULL,
+  year_discovered NUMERIC(4, 0),
+  CONSTRAINT fk_planet_moon
+    FOREIGN KEY(planet_id)
+    REFERENCES planet(planet_id));
+
+
+ALTER TABLE galaxy
+ADD CONSTRAINT galaxy_unique UNIQUE (name);
+
+ALTER TABLE stage
+ADD CONSTRAINT stage_unique UNIQUE (name);
+
+ALTER TABLE star
+ADD CONSTRAINT star_unique UNIQUE (name);
+
+ALTER TABLE planet
+ADD CONSTRAINT planet_unique UNIQUE (name);
+
+ALTER TABLE moon
+ADD CONSTRAINT moon_unique UNIQUE (name);
+
+INSERT INTO galaxy
+(name, diameter_ly, constellation, name_origin, naked_eye)
+VALUES
+('Milky Way', 87400, 'Sagittarius', 'The appearance from Earth of the galaxy—a band of light', TRUE),
+('Andromeda Galaxy', 152000, 'Andromeda', 'Gets its name from the area of the sky in which it appears, the constellation of Andromeda.', TRUE),
+('Bode''s Galaxy', 96000, 'Ursa Major', 'Named for Johann Elert Bode who discovered this galaxy in 1774.', TRUE),
+('Cartwheel Galaxy', 144300, 'Sculptor', 'Its visual appearance is similar to that of a spoked cartwheel.', FALSE),
+('Peekaboo Galaxy', 1200, 'Hydra', 'Was hidden behind a relatively fast-moving foreground star and became observable when the star moved aside.', FALSE),
+('Sombrero Galaxy', 49000, 'Virgo', 'Similar in appearance to a sombrero.', FALSE);
+
++-----------+------------------+-------------+---------------+-------------------------------------------------------------------------------------------------------------+-----------+
+| galaxy_id |       name       | diameter_ly | constellation |                                                 name_origin                                                 | naked_eye |
++-----------+------------------+-------------+---------------+-------------------------------------------------------------------------------------------------------------+-----------+
+|         1 | Milky Way        |       87400 | Sagittarius   | The appearance from Earth of the galaxy—a band of light                                                     | t         |
+|         2 | Andromeda Galaxy |      152000 | Andromeda     | Gets its name from the area of the sky in which it appears, the constellation of Andromeda.                 | t         |
+|         3 | Bode's Galaxy    |       96000 | Ursa Major    | Named for Johann Elert Bode who discovered this galaxy in 1774.                                             | t         |
+|         4 | Cartwheel Galaxy |      144300 | Sculptor      | Its visual appearance is similar to that of a spoked cartwheel.                                             | f         |
+|         5 | Peekaboo Galaxy  |        1200 | Hydra         | Was hidden behind a relatively fast-moving foreground star and became observable when the star moved aside. | f         |
+|         6 | Sombrero Galaxy  |       49000 | Virgo         | Similar in appearance to a sombrero.                                                                        | f         |
++-----------+------------------+-------------+---------------+-------------------------------------------------------------------------------------------------------------+-----------+
+
+INSERT INTO stage
+(name, stage_info)
+VALUES
+('Giant Gas Cloud', 'Formed by the gravitational collapse of giant clouds of dust and gas called Nebulae.'),
+('Protostar', 'The formative phase of a star.'),
+('Main Sequence', 'The main life cycle of a star.'),
+('Red Giant', 'The beginning of a small star''s death.'),
+('White Dwarf', 'A mass of carbon and oxygen. Dense and Bright.'),
+('Black Dwarf', 'Strictly theoretical.'),
+('Red Supergiant', 'Swells and goes until iron is formed.'),
+('Supernova', 'The death of a star, happens in seconds.'),
+('Black Hole', 'Gravity so intense it ''eats'' other mass around it!');
+
++----------+-----------------+--------------------------------------------------------------------------------------+
+| stage_id |      name       |                                      stage_info                                      |
++----------+-----------------+--------------------------------------------------------------------------------------+
+|        1 | Giant Gas Cloud | Formed by the gravitational collapse of giant clouds of dust and gas called Nebulae. |
+|        2 | Protostar       | The formative phase of a star.                                                       |
+|        3 | Main Sequence   | The main life cycle of a star.                                                       |
+|        4 | Red Giant       | The beginning of a small star's death.                                               |
+|        5 | White Dwarf     | A mass of carbon and oxygen. Dense and Bright.                                       |
+|        6 | Black Dwarf     | Strictly theoretical.                                                                |
+|        7 | Red Supergiant  | Swells and goes until iron is formed.                                                |
+|        8 | Supernova       | The death of a star, happens in seconds.                                             |
+|        9 | Black Hole      | Gravity so intense it 'eats' other mass around it!                                   |
++----------+-----------------+--------------------------------------------------------------------------------------+
+
++-----------+-------------------+-----------+----------+---------------------------------------+
+|  Column   |       Type        | Collation | Nullable |                Default                |
++-----------+-------------------+-----------+----------+---------------------------------------+
+| star_id   | integer           |           | not null | nextval('star_star_id_seq'::regclass) |
+| name      | character varying |           | not null |                                       |
+| galaxy_id | integer           |           | not null |                                       |
+| stage_id  | integer           |           | not null |                                       |
+| is_active | boolean           |           | not null |                                       |
++-----------+-------------------+-----------+----------+---------------------------------------+
+
+INSERT INTO star
+(name, galaxy_id, stage_id, is_active)
+VALUES
+('Sun', 1, 3, TRUE),
+('Kepler''s Supernova', 1, 8, FALSE),
+('Sirius A', 1, 5, TRUE),
+('Polaris', 1, 3, TRUE),
+('Betelgeuse', 1, 7, FALSE),
+('Gaia BH1', 1, 9, FALSE);
+
+INSERT INTO star
+(name, galaxy_id, stage_id, is_active)
+VALUES
+('55 Cancri', 1, 3, TRUE);
+
++---------------------+-------------------+-----------+----------+-------------------------------------------+
+|       Column        |       Type        | Collation | Nullable |                  Default                  |
++---------------------+-------------------+-----------+----------+-------------------------------------------+
+| planet_id           | integer           |           | not null | nextval('planet_planet_id_seq'::regclass) |
+| name                | character varying |           | not null |                                           |
+| orbital_period_days | integer           |           | not null |                                           |
+| radius_km           | integer           |           |          |                                           |
+| star_id             | integer           |           |          |                                           |
++---------------------+-------------------+-----------+----------+-------------------------------------------+
+
+ALTER TABLE planet
+RENAME COLUMN radius_km TO orbital_period_days;
+
+ALTER TABLE planet
+RENAME COLUMN diameter_km TO radius_km;
+
+87.969
+224.701
+365.256363
+686.971
+4,332.59
+10,759.22
+30,688.5
+60,182
+
+2,440.53
+6,051.8
+6,378.1366
+3,396.19
+71,492
+60,268
+25,559
+24,764
+
+INSERT INTO planet
+(name, orbital_period_days, radius_km, star_id)
+VALUES
+('Mercury', 88, 2440, 1),
+('Venus', 225, 6052, 1),
+('Earth', 365, 6378, 1),
+('Mars', 687, 3396, 1),
+('Jupiter', 4332, 71492, 1),
+('Saturn', 10759, 71492, 1),
+('Uranus', 30688, 25559, 1),
+('Neptune', 60182, 24764, 1),
+('Galileo', 15, NULL, 7),
+('Brahe', 44, NULL, 7),
+('Lipperhey', 4825, NULL, 7),
+('Jansen', 1, NULL, 7),
+('Harriot', 262, NULL, 7);
+
++-----------+-----------+---------------------+-----------+---------+
+| planet_id |   name    | orbital_period_days | radius_km | star_id |
++-----------+-----------+---------------------+-----------+---------+
+|         1 | Mercury   |                  88 |      2440 |       1 |
+|         2 | Venus     |                 225 |      6052 |       1 |
+|         3 | Earth     |                 365 |      6378 |       1 |
+|         4 | Mars      |                 687 |      3396 |       1 |
+|         5 | Jupiter   |                4332 |     71492 |       1 |
+|         6 | Saturn    |               10759 |     71492 |       1 |
+|         7 | Uranus    |               30688 |     25559 |       1 |
+|         8 | Neptune   |               60182 |     24764 |       1 |
+|         9 | Galileo   |                  15 |           |       7 |
+|        10 | Brahe     |                  44 |           |       7 |
+|        11 | Lipperhey |                4825 |           |       7 |
+|        12 | Jansen    |                   1 |           |       7 |
+|        13 | Harriot   |                 262 |           |       7 |
++-----------+-----------+---------------------+-----------+---------+
+
+
++-----------------+-------------------+-----------+----------+---------------------------------------+
+|     Column      |       Type        | Collation | Nullable |                Default                |
++-----------------+-------------------+-----------+----------+---------------------------------------+
+| moon_id         | integer           |           | not null | nextval('moon_moon_id_seq'::regclass) |
+| name            | character varying |           | not null |                                       |
+| planet_id       | integer           |           | not null |                                       |
+| diameter_km     | integer           |           | not null |                                       |
+| year_discovered | numeric(4,0)      |           |          |                                       |
++-----------------+-------------------+-----------+----------+---------------------------------------+
+
+ALTER TABLE moon
+RENAME COLUMN diameter_km TO radius_km;
+
+INSERT INTO moon
+(name, planet_id, radius_km, year_discovered)
+VALUES
+('Moon', 3, 1738, NULL),
+('Phobos', 4, 11267, 1877),
+('Deimos', 4, 6, 1877),
+('Io', 5, 1821, 1610),
+('Europa', 5, 1560, 1610),
+('Ganymede', 5, 2634, 1610),
+('Callisto', 5, 2410, 1610),
+('Mimas', 6, 198, 1789),
+('Dione', 6, 561, 1684),
+('Rhea', 6, 763, 1672),
+('Titan', 6, 2574, 1655),
+('Hyperion', 6, 135, 1848),
+('Phoebe', 6, 106, 1899),
+('Ariel', 7, 578, 1851),
+('Titania', 7, 789, 1787),
+('Juliet', 7, 46, 1986),
+('Puck', 7, 81, 1985),
+('Francisco', 7, 11, 2001),
+('Cupid', 7, 9, 2003), 
+('Galatea', 8, 88, 1989),
+('Larissa', 8, 97, 1981);
+
+
+pg_dump -cC --inserts -U freecodecamp universe > universe.sql
